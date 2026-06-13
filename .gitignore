@@ -1,0 +1,14 @@
+# Build folders
+[Bb]in/
+[Oo]bj/
+
+# IDE configurations
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# App local user databases / setup zip
+wifi_usage.json
+SignalGlance_Setup.zip

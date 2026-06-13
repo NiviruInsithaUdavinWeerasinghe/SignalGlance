@@ -1,0 +1,81 @@
+<Window x:Class="SignalGlance.NotificationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SignalGlance Notification" 
+        Height="85" Width="340"
+        WindowStyle="None" 
+        AllowsTransparency="True" 
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ShowActivated="False"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType">
+    
+    <Window.Resources>
+        <Storyboard x:Key="SlideIn">
+            <DoubleAnimation Storyboard.TargetName="NotificationBorder"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                             From="100" To="0" Duration="0:0:0.35" DecelerationRatio="0.8"/>
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="0" To="1" Duration="0:0:0.25"/>
+        </Storyboard>
+        <Storyboard x:Key="SlideOut">
+            <DoubleAnimation Storyboard.TargetName="NotificationBorder"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                             To="100" Duration="0:0:0.3" AccelerationRatio="0.8"/>
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             To="0" Duration="0:0:0.2"/>
+        </Storyboard>
+    </Window.Resources>
+
+    <Border x:Name="NotificationBorder" CornerRadius="10" BorderThickness="1" BorderBrush="#1CFFFFFF" Background="#FF131317" Margin="5"
+            RenderOptions.ClearTypeHint="Enabled">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="18" ShadowDepth="4" Opacity="0.6" Color="Black"/>
+        </Border.Effect>
+        <Border.RenderTransform>
+            <TranslateTransform x:Name="Transform"/>
+        </Border.RenderTransform>
+
+        <Grid Margin="12,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Connection Status Icon -->
+            <Border Grid.Column="0" Width="34" Height="34" CornerRadius="17" x:Name="IconBackground" Background="#44FFFFFF" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Path x:Name="StatusIcon" 
+                      Fill="White"
+                      Width="18" Height="18"
+                      Stretch="Uniform"
+                      VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Border>
+
+            <!-- Text Content -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,5,0">
+                <TextBlock x:Name="TitleText" Text="Connection Status" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
+                <TextBlock x:Name="MessageText" Text="Details" Foreground="#A0FFFFFF" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <!-- Close Button -->
+            <Button Grid.Column="2" Click="CloseButton_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Width="24" Height="24" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent" CornerRadius="4" x:Name="BtnBorder">
+                            <Path Data="M 2,2 L 10,10 M 10,2 L 2,10" Stroke="#A0FFFFFF" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#1AFFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
+    </Border>
+</Window>
