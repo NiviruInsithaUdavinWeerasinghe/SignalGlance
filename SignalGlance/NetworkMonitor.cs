@@ -129,10 +129,17 @@ namespace SignalGlance
 
                     if (rxDiff >= 0 && txDiff >= 0)
                     {
+                        if (_lastBytesReceived == 0 || _lastBytesSent == 0)
+                        {
+                            ResetCounters();
+                            rxDiff = 0;
+                            txDiff = 0;
+                        }
+
                         downloadSpeedMbps = (rxDiff * 8.0) / (1024.0 * 1024.0 * dt);
                         uploadSpeedMbps = (txDiff * 8.0) / (1024.0 * 1024.0 * dt);
 
-                        if (!string.IsNullOrEmpty(_cachedSSID))
+                        if (!string.IsNullOrEmpty(_cachedSSID) && (rxDiff > 0 || txDiff > 0))
                         {
                             _wifiTracker.RecordUsage(_cachedSSID, rxDiff, txDiff);
                         }
