@@ -162,7 +162,7 @@
                         <LineBreak/>
                         •  Track historical Wi-Fi data usage per SSID with daily &amp; monthly charts.
                         <LineBreak/>
-                        •  Pin the dashboard window to the desktop so it stays open.
+                        •  Run manual speed tests to measure ping, download, and upload bandwidth.
                     </TextBlock>
                     
                     <StackPanel Grid.Row="2" Margin="0,15,0,0">
