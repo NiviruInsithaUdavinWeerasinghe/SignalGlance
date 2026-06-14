@@ -89,6 +89,8 @@ namespace SignalGlance
 
             // 1. Setup Dashboard Window
             _mainWindow = new MainWindow();
+            var helper = new System.Windows.Interop.WindowInteropHelper(_mainWindow);
+            helper.EnsureHandle();
 
             // 2. Setup System Tray Icon
             _notifyIcon = new NotifyIcon();
@@ -237,6 +239,23 @@ namespace SignalGlance
                 // Fallback to system application icon if drawing fails
                 _notifyIcon!.Icon = SystemIcons.Application;
             }
+        }
+
+        public void RefreshTrayIcon()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    if (_notifyIcon != null)
+                    {
+                        _notifyIcon.Visible = false;
+                        _notifyIcon.Visible = true;
+                        UpdateTrayIcon(_lastState);
+                    }
+                }
+                catch { }
+            });
         }
 
         private void ShutdownApp()

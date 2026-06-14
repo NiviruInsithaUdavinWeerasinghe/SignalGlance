@@ -680,6 +680,32 @@ namespace SignalGlance
             }
             catch { }
         }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+        private static extern uint RegisterWindowMessage(string lpString);
+
+        private uint _taskbarCreatedMsg;
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            
+            _taskbarCreatedMsg = RegisterWindowMessage("TaskbarCreated");
+            
+            var helper = new WindowInteropHelper(this);
+            var source = HwndSource.FromHwnd(helper.Handle);
+            source?.AddHook(WndProc);
+        }
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == _taskbarCreatedMsg)
+            {
+                var app = System.Windows.Application.Current as App;
+                app?.RefreshTrayIcon();
+            }
+            return IntPtr.Zero;
+        }
     }
 
     public class WifiNetworkItem
