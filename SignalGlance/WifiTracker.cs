@@ -18,6 +18,8 @@ namespace SignalGlance
         private readonly string _filePath;
         private readonly object _lock = new object();
         private Dictionary<string, WifiUsageData> _usageDb = new Dictionary<string, WifiUsageData>();
+        
+        public bool IsSpeedTesting { get; set; } = false;
 
         public WifiTracker()
         {

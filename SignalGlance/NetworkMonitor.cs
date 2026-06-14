@@ -139,7 +139,7 @@ namespace SignalGlance
                         downloadSpeedMbps = (rxDiff * 8.0) / (1024.0 * 1024.0 * dt);
                         uploadSpeedMbps = (txDiff * 8.0) / (1024.0 * 1024.0 * dt);
 
-                        if (!string.IsNullOrEmpty(_cachedSSID) && (rxDiff > 0 || txDiff > 0))
+                        if (!string.IsNullOrEmpty(_cachedSSID) && !_wifiTracker.IsSpeedTesting && (rxDiff > 0 || txDiff > 0))
                         {
                             _wifiTracker.RecordUsage(_cachedSSID, rxDiff, txDiff);
                         }

@@ -371,6 +371,7 @@ namespace SignalGlance
                 _speedTestCts = null;
             }
             _isSpeedTesting = false;
+            if (WifiTracker != null) WifiTracker.IsSpeedTesting = false;
         }
 
         private void UpdateNeedle(double speed)
@@ -422,6 +423,7 @@ namespace SignalGlance
             if (_isSpeedTesting) return;
 
             _isSpeedTesting = true;
+            if (WifiTracker != null) WifiTracker.IsSpeedTesting = true;
             _speedTestCts = new CancellationTokenSource();
             _currentMaxSpeed = 100.0; // Reset max speed limit
             var token = _speedTestCts.Token;
@@ -587,6 +589,7 @@ namespace SignalGlance
             {
                 _isSpeedTesting = false;
                 _speedTestCts = null;
+                if (WifiTracker != null) WifiTracker.IsSpeedTesting = false;
             }
         }
 
