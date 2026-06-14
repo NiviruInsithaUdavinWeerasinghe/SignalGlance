@@ -55,17 +55,17 @@
         <Style TargetType="ScrollBar">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="8"/>
+            <Setter Property="Width" Value="4"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ScrollBar">
                         <Grid x:Name="Bg" Background="Transparent" SnapsToDevicePixels="true">
                             <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsEnabled}">
                                 <Track.Thumb>
-                                    <Thumb x:Name="Thumb">
+                                    <Thumb x:Name="Thumb" Background="#6600E676">
                                         <Thumb.Template>
                                             <ControlTemplate TargetType="Thumb">
-                                                <Border Background="#44FFFFFF" CornerRadius="4" Width="6"/>
+                                                <Border Background="{TemplateBinding Background}" CornerRadius="1.5" Width="3"/>
                                             </ControlTemplate>
                                         </Thumb.Template>
                                     </Thumb>
@@ -74,7 +74,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="Thumb" Property="Background" Value="#00E676"/>
+                                <Setter TargetName="Thumb" Property="Background" Value="#B300E676"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

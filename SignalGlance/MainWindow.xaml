@@ -42,14 +42,14 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
                         <Grid>
-                            <Rectangle x:Name="rect" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="Auto" Height="Auto" Fill="#22FFFFFF" RadiusX="3" RadiusY="3"/>
+                            <Rectangle x:Name="rect" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="3" Height="Auto" Fill="#6600E676" RadiusX="1.5" RadiusY="1.5"/>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="Fill" TargetName="rect" Value="#5500E676"/>
+                                <Setter Property="Fill" TargetName="rect" Value="#B300E676"/>
                             </Trigger>
                             <Trigger Property="IsDragging" Value="true">
-                                <Setter Property="Fill" TargetName="rect" Value="#9900E676"/>
+                                <Setter Property="Fill" TargetName="rect" Value="#FF00E676"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -60,7 +60,7 @@
         <!-- ScrollBar Style -->
         <Style TargetType="ScrollBar">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Width" Value="6"/>
+            <Setter Property="Width" Value="4"/>
             <Setter Property="Margin" Value="2,0,0,0"/>
             <Setter Property="Template">
                 <Setter.Value>
