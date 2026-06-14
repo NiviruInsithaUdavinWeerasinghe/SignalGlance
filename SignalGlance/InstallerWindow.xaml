@@ -107,7 +107,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <Path Data="M12 21a2 2 0 1 1-4 0 2 2 0 0 1 4 0z M2.293 8.293a1 1 0 0 1 1.414 0 13.947 13.947 0 0 1 16.586 0 1 1 0 0 1 0 1.414L18.88 11.12" 
                           Fill="#00E676" Width="16" Height="16" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock Text="SignalGlance Setup" Foreground="White" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock Text="SignalGlance Setup Diagnostic TEST" Foreground="White" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <!-- Step Progress Indicator -->
