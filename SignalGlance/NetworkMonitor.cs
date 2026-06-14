@@ -11,7 +11,6 @@ namespace SignalGlance
     {
         private readonly System.Threading.Timer _timer;
         private readonly WifiTracker _wifiTracker;
-        private int _saveDbCounter = 0;
         private string? _cachedSSID = null;
         private int _ssidCheckCounter = 0;
         private long _lastBytesReceived;
@@ -20,7 +19,6 @@ namespace SignalGlance
         private ConnectionState _currentState = ConnectionState.NoSignal;
         private bool _isFirstRun = true;
         private bool _isChecking = false;
-        private bool _wasSpeedTesting = false;
 
         public event Action<ConnectionState> ConnectionStateChanged;
         public event Action<double, double, double> StatsUpdated;
@@ -105,14 +103,6 @@ namespace SignalGlance
 
                 GetNetworkBytes(out long rx, out long tx);
 
-                bool isSpeedTesting = _wifiTracker.IsSpeedTesting;
-                if (!isSpeedTesting && _wasSpeedTesting)
-                {
-                    ResetCounters();
-                    GetNetworkBytes(out rx, out tx);
-                }
-                _wasSpeedTesting = isSpeedTesting;
-
                 double downloadSpeedMbps = 0;
                 double uploadSpeedMbps = 0;
 
@@ -148,10 +138,7 @@ namespace SignalGlance
                         downloadSpeedMbps = (rxDiff * 8.0) / (1024.0 * 1024.0 * dt);
                         uploadSpeedMbps = (txDiff * 8.0) / (1024.0 * 1024.0 * dt);
 
-                        if (!string.IsNullOrEmpty(_cachedSSID) && !_wifiTracker.IsSpeedTesting && (rxDiff > 0 || txDiff > 0))
-                        {
-                            _wifiTracker.RecordUsage(_cachedSSID, rxDiff, txDiff);
-                        }
+
                     }
                     else
                     {
@@ -206,13 +193,6 @@ namespace SignalGlance
                 {
                     _currentState = newState;
                     ConnectionStateChanged?.Invoke(newState);
-                }
-
-                _saveDbCounter++;
-                if (_saveDbCounter >= 10)
-                {
-                    _saveDbCounter = 0;
-                    _wifiTracker.SaveDatabase();
                 }
 
                 StatsUpdated?.Invoke(_smoothedPing < 0 ? 0 : _smoothedPing, downloadSpeedMbps, uploadSpeedMbps);

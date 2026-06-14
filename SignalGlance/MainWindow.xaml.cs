@@ -282,7 +282,7 @@ namespace SignalGlance
             UpdateWifiUsageDetails();
         }
 
-        private void UpdateWifiUsageDetails()
+        private async void UpdateWifiUsageDetails()
         {
             if (WifiTracker == null || WifiNetworksList == null || WifiEmptyStateText == null || WifiStatsPanel == null) return;
             var selectedItem = WifiNetworksList.SelectedItem as WifiNetworkItem;
@@ -300,7 +300,7 @@ namespace SignalGlance
             WifiStatsPanel.Visibility = Visibility.Visible;
             SelectedWifiNameText.Text = selectedSsid;
 
-            var usage = WifiTracker.GetUsage(selectedSsid);
+            var usage = await WifiTracker.GetUsageAsync(selectedSsid);
             bool isDaily = FilterDaily.IsChecked == true;
 
             var historyItems = new List<KeyValuePair<string, string>>();

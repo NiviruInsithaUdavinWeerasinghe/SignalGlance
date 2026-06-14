@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
+using System.Threading.Tasks;
+using Windows.Networking.Connectivity;
 
 namespace SignalGlance
 {
@@ -15,81 +15,50 @@ namespace SignalGlance
 
     public class WifiTracker
     {
-        private readonly string _filePath;
-        private readonly object _lock = new object();
-        private Dictionary<string, WifiUsageData> _usageDb = new Dictionary<string, WifiUsageData>();
-        
         public bool IsSpeedTesting { get; set; } = false;
 
         public WifiTracker()
         {
-            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SignalGlance");
-            Directory.CreateDirectory(folder);
-            _filePath = Path.Combine(folder, "wifi_usage.json");
-            LoadDatabase();
-        }
-
-        private void LoadDatabase()
-        {
-            lock (_lock)
-            {
-                try
-                {
-                    if (File.Exists(_filePath))
-                    {
-                        string json = File.ReadAllText(_filePath);
-                        var db = JsonSerializer.Deserialize<Dictionary<string, WifiUsageData>>(json);
-                        if (db != null)
-                        {
-                            _usageDb = db;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Failed to load wifi usage: {ex.Message}");
-                }
-            }
-        }
-
-        public void SaveDatabase()
-        {
-            lock (_lock)
-            {
-                try
-                {
-                    string json = JsonSerializer.Serialize(_usageDb, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(_filePath, json);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Failed to save wifi usage: {ex.Message}");
-                }
-            }
+            // Database is no longer stored locally on disk. We query Windows OS database natively.
         }
 
         public List<string> GetKnownNetworks()
         {
-            var ssids = new List<string>();
-            lock (_lock)
+            try
             {
-                foreach (var ssid in _usageDb.Keys)
-                {
-                    ssids.Add(ssid);
-                }
-            }
+                var profiles = NetworkInformation.GetConnectionProfiles();
+                if (profiles == null) return new List<string>();
 
-            var current = GetCurrentSSID();
-            if (!string.IsNullOrEmpty(current) && !ssids.Contains(current))
+                return profiles
+                    .Where(p => p.IsWlanConnectionProfile && !string.IsNullOrEmpty(p.ProfileName))
+                    .Select(p => p.ProfileName)
+                    .Distinct()
+                    .OrderBy(s => s)
+                    .ToList();
+            }
+            catch (Exception ex)
             {
-                ssids.Add(current);
+                Debug.WriteLine($"Error getting known networks: {ex.Message}");
+                return new List<string>();
             }
-
-            return ssids.OrderBy(s => s).ToList();
         }
 
         public string? GetCurrentSSID()
         {
+            try
+            {
+                var profile = NetworkInformation.GetInternetConnectionProfile();
+                if (profile != null && profile.IsWlanConnectionProfile)
+                {
+                    return profile.ProfileName;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting current SSID from UWP: {ex.Message}");
+            }
+
+            // Fallback to netsh if UWP fails
             try
             {
                 var startInfo = new ProcessStartInfo
@@ -126,58 +95,98 @@ namespace SignalGlance
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error showing wlan interfaces: {ex.Message}");
+                Debug.WriteLine($"Error showing wlan interfaces via netsh: {ex.Message}");
             }
             return null;
         }
 
-        public void RecordUsage(string ssid, long bytesRead, long bytesSent)
+        public async Task<WifiUsageData> GetUsageAsync(string ssid)
         {
-            if (string.IsNullOrEmpty(ssid)) return;
+            var data = new WifiUsageData();
+            if (string.IsNullOrEmpty(ssid)) return data;
 
-            lock (_lock)
+            try
             {
-                if (!_usageDb.ContainsKey(ssid))
+                var profiles = NetworkInformation.GetConnectionProfiles();
+                var profile = profiles.FirstOrDefault(p => p.IsWlanConnectionProfile && p.ProfileName == ssid);
+                if (profile == null) return data;
+
+                var states = new NetworkUsageStates();
+                var today = DateTimeOffset.Now.Date;
+
+                // Query last 30 days individually in parallel
+                var dailyTasks = Enumerable.Range(0, 30).Select(async i =>
                 {
-                    _usageDb[ssid] = new WifiUsageData();
+                    var dayStart = today.AddDays(-i);
+                    var dayEnd = dayStart.AddDays(1);
+                    try
+                    {
+                        var usages = await profile.GetNetworkUsageAsync(dayStart, dayEnd, DataUsageGranularity.Total, states);
+                        long total = 0;
+                        if (usages != null)
+                        {
+                            foreach (var u in usages)
+                            {
+                                total += (long)(u.BytesReceived + u.BytesSent);
+                            }
+                        }
+                        return new { DateStr = dayStart.ToString("yyyy-MM-dd"), Bytes = total };
+                    }
+                    catch
+                    {
+                        return new { DateStr = dayStart.ToString("yyyy-MM-dd"), Bytes = 0L };
+                    }
+                }).ToArray();
+
+                var dailyResults = await Task.WhenAll(dailyTasks);
+                foreach (var res in dailyResults)
+                {
+                    if (res.Bytes > 0)
+                    {
+                        data.Daily[res.DateStr] = res.Bytes;
+                    }
                 }
 
-                var data = _usageDb[ssid];
-                string today = DateTime.Today.ToString("yyyy-MM-dd");
-                string thisMonth = DateTime.Today.ToString("yyyy-MM");
+                // Query last 12 months individually in parallel
+                var monthlyTasks = Enumerable.Range(0, 12).Select(async i =>
+                {
+                    var firstOfThisMonth = new DateTimeOffset(today.Year, today.Month, 1, 0, 0, 0, TimeSpan.Zero);
+                    var monthStart = firstOfThisMonth.AddMonths(-i);
+                    var monthEnd = monthStart.AddMonths(1);
+                    try
+                    {
+                        var usages = await profile.GetNetworkUsageAsync(monthStart, monthEnd, DataUsageGranularity.Total, states);
+                        long total = 0;
+                        if (usages != null)
+                        {
+                            foreach (var u in usages)
+                            {
+                                total += (long)(u.BytesReceived + u.BytesSent);
+                            }
+                        }
+                        return new { MonthStr = monthStart.ToString("yyyy-MM"), Bytes = total };
+                    }
+                    catch
+                    {
+                        return new { MonthStr = monthStart.ToString("yyyy-MM"), Bytes = 0L };
+                    }
+                }).ToArray();
 
-                long totalBytes = bytesRead + bytesSent;
-
-                if (data.Daily.ContainsKey(today))
+                var monthlyResults = await Task.WhenAll(monthlyTasks);
+                foreach (var res in monthlyResults)
                 {
-                    data.Daily[today] += totalBytes;
-                }
-                else
-                {
-                    data.Daily[today] = totalBytes;
-                }
-
-                if (data.Monthly.ContainsKey(thisMonth))
-                {
-                    data.Monthly[thisMonth] += totalBytes;
-                }
-                else
-                {
-                    data.Monthly[thisMonth] = totalBytes;
+                    if (res.Bytes > 0)
+                    {
+                        data.Monthly[res.MonthStr] = res.Bytes;
+                    }
                 }
             }
-        }
-
-        public WifiUsageData GetUsage(string ssid)
-        {
-            lock (_lock)
+            catch (Exception ex)
             {
-                if (_usageDb.TryGetValue(ssid, out var data))
-                {
-                    return data;
-                }
+                Debug.WriteLine($"Error querying UWP connectivity network usage: {ex.Message}");
             }
-            return new WifiUsageData();
+
+            return data;
         }
     }
 }
