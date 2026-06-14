@@ -77,7 +77,7 @@ namespace SignalGlance
             foreach (var ni in interfaces)
             {
                 if (ni.OperationalStatus == OperationalStatus.Up &&
-                    ni.NetworkInterfaceType != NetworkInterfaceType.Loopback &&
+                    ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 &&
                     !ni.Description.Contains("Virtual") &&
                     !ni.Description.Contains("Pseudo"))
                 {
@@ -112,7 +112,14 @@ namespace SignalGlance
                 if (_ssidCheckCounter >= 5 || _cachedSSID == null)
                 {
                     _ssidCheckCounter = 0;
-                    _cachedSSID = _wifiTracker.GetCurrentSSID();
+                    string? currentSSID = _wifiTracker.GetCurrentSSID();
+                    if (currentSSID != _cachedSSID)
+                    {
+                        _cachedSSID = currentSSID;
+                        ResetCounters();
+                        // Get network bytes again post-reset to have accurate baseline for this tick
+                        GetNetworkBytes(out rx, out tx);
+                    }
                 }
 
                 if (!_isFirstRun)
