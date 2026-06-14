@@ -20,6 +20,7 @@ namespace SignalGlance
         private ConnectionState _currentState = ConnectionState.NoSignal;
         private bool _isFirstRun = true;
         private bool _isChecking = false;
+        private bool _wasSpeedTesting = false;
 
         public event Action<ConnectionState> ConnectionStateChanged;
         public event Action<double, double, double> StatsUpdated;
@@ -103,6 +104,14 @@ namespace SignalGlance
                 if (dt <= 0) dt = 1.0;
 
                 GetNetworkBytes(out long rx, out long tx);
+
+                bool isSpeedTesting = _wifiTracker.IsSpeedTesting;
+                if (!isSpeedTesting && _wasSpeedTesting)
+                {
+                    ResetCounters();
+                    GetNetworkBytes(out rx, out tx);
+                }
+                _wasSpeedTesting = isSpeedTesting;
 
                 double downloadSpeedMbps = 0;
                 double uploadSpeedMbps = 0;
