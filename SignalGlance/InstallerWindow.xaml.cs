@@ -63,7 +63,7 @@ namespace SignalGlance
                 {
                     try
                     {
-                        string exePath = @"C:\SignalGlance\SignalGlance\bin\Debug\net9.0-windows\SignalGlance.exe";
+                        string exePath = @"C:\SignalGlance\SignalGlance\bin\Debug\net9.0-windows10.0.19041.0\SignalGlance.exe";
                         if (!File.Exists(exePath))
                         {
                             exePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SignalGlance", "SignalGlance.exe");

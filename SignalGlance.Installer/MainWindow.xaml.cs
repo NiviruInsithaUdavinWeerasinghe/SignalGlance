@@ -60,13 +60,13 @@ namespace SignalGlance.Installer
                 {
                     try
                     {
-                        string exePath = @"C:\SignalGlance\SignalGlance\bin\Debug\net9.0-windows\SignalGlance.exe";
+                        string exePath = @"C:\SignalGlance\SignalGlance\bin\Debug\net9.0-windows10.0.19041.0\SignalGlance.exe";
                         if (!File.Exists(exePath))
                         {
                             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                             if (baseDir.Contains("SignalGlance.Installer"))
                             {
-                                exePath = Path.GetFullPath(Path.Combine(baseDir, "..\\..\\..\\..\\SignalGlance\\bin\\Debug\\net9.0-windows\\SignalGlance.exe"));
+                                exePath = Path.GetFullPath(Path.Combine(baseDir, "..\\..\\..\\..\\SignalGlance\\bin\\Debug\\net9.0-windows10.0.19041.0\\SignalGlance.exe"));
                             }
                             else
                             {
@@ -114,7 +114,7 @@ namespace SignalGlance.Installer
                 
                 if (baseDir.Contains("SignalGlance.Installer"))
                 {
-                    sourceDir = Path.GetFullPath(Path.Combine(baseDir, "..\\..\\..\\..\\SignalGlance\\bin\\Debug\\net9.0-windows"));
+                    sourceDir = Path.GetFullPath(Path.Combine(baseDir, "..\\..\\..\\..\\SignalGlance\\bin\\Debug\\net9.0-windows10.0.19041.0"));
                 }
                 else
                 {
