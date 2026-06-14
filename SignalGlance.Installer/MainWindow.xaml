@@ -154,15 +154,15 @@
                         <LineBreak/><LineBreak/>
                         Features:
                         <LineBreak/>
-                        •  Sit in the System Tray out of your way.
-                        <LineBreak/>
                         •  Display real-time statistics (Ping, Download, and Upload speeds).
+                        <LineBreak/>
+                        •  Run manual speed tests to measure ping, download, and upload bandwidth.
+                        <LineBreak/>
+                        •  Sit in the System Tray out of your way.
                         <LineBreak/>
                         •  Alert you immediately with bottom-left slide-in notifications when connection quality changes.
                         <LineBreak/>
                         •  Track historical Wi-Fi data usage per SSID with daily &amp; monthly charts.
-                        <LineBreak/>
-                        •  Run manual speed tests to measure ping, download, and upload bandwidth.
                     </TextBlock>
                     
                     <StackPanel Grid.Row="2" Margin="0,15,0,0">
